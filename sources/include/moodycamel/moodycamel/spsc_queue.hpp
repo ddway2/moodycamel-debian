@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "atomicops.h"
+#include <moodycamel/atomicops.hpp>
 #include <type_traits>
 #include <utility>
 #include <cassert>
