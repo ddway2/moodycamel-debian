@@ -1,6 +1,6 @@
-// Provides an efficient blocking version of moodycamel::ConcurrentQueue.
+// Provides an efficient blocking version of moodycamel::concurrent_queue.
 // ©2015 Cameron Desrochers. Distributed under the terms of the simplified
-// BSD license, available at the top of concurrentqueue.h.
+// BSD license, available at the top of concurrent_queue.h.
 // Uses Jeff Preshing's semaphore implementation (under the terms of its
 // separate zlib license, embedded below).
 
@@ -316,24 +316,24 @@ template<typename T, typename Traits = ConcurrentQueueDefaultTraits>
 class blocking_concurrent_queue
 {
 private:
-	typedef ::moodycamel::ConcurrentQueue<T, Traits> ConcurrentQueue;
+	typedef ::moodycamel::concurrent_queue<T, Traits> concurrent_queue;
 	typedef details::mpmc_sema::LightweightSemaphore LightweightSemaphore;
 
 public:
-	typedef typename ConcurrentQueue::producer_token_t producer_token_t;
-	typedef typename ConcurrentQueue::consumer_token_t consumer_token_t;
+	typedef typename concurrent_queue::producer_token_t producer_token_t;
+	typedef typename concurrent_queue::consumer_token_t consumer_token_t;
 	
-	typedef typename ConcurrentQueue::index_t index_t;
-	typedef typename ConcurrentQueue::size_t size_t;
+	typedef typename concurrent_queue::index_t index_t;
+	typedef typename concurrent_queue::size_t size_t;
 	typedef typename std::make_signed<size_t>::type ssize_t;
 	
-	static const size_t BLOCK_SIZE = ConcurrentQueue::BLOCK_SIZE;
-	static const size_t EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD = ConcurrentQueue::EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD;
-	static const size_t EXPLICIT_INITIAL_INDEX_SIZE = ConcurrentQueue::EXPLICIT_INITIAL_INDEX_SIZE;
-	static const size_t IMPLICIT_INITIAL_INDEX_SIZE = ConcurrentQueue::IMPLICIT_INITIAL_INDEX_SIZE;
-	static const size_t INITIAL_IMPLICIT_PRODUCER_HASH_SIZE = ConcurrentQueue::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE;
-	static const std::uint32_t EXPLICIT_CONSUMER_CONSUMPTION_QUOTA_BEFORE_ROTATE = ConcurrentQueue::EXPLICIT_CONSUMER_CONSUMPTION_QUOTA_BEFORE_ROTATE;
-	static const size_t MAX_SUBQUEUE_SIZE = ConcurrentQueue::MAX_SUBQUEUE_SIZE;
+	static const size_t BLOCK_SIZE = concurrent_queue::BLOCK_SIZE;
+	static const size_t EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD = concurrent_queue::EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD;
+	static const size_t EXPLICIT_INITIAL_INDEX_SIZE = concurrent_queue::EXPLICIT_INITIAL_INDEX_SIZE;
+	static const size_t IMPLICIT_INITIAL_INDEX_SIZE = concurrent_queue::IMPLICIT_INITIAL_INDEX_SIZE;
+	static const size_t INITIAL_IMPLICIT_PRODUCER_HASH_SIZE = concurrent_queue::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE;
+	static const std::uint32_t EXPLICIT_CONSUMER_CONSUMPTION_QUOTA_BEFORE_ROTATE = concurrent_queue::EXPLICIT_CONSUMER_CONSUMPTION_QUOTA_BEFORE_ROTATE;
+	static const size_t MAX_SUBQUEUE_SIZE = concurrent_queue::MAX_SUBQUEUE_SIZE;
 	
 public:
 	// Creates a queue with at least `capacity` element slots; note that the
@@ -349,7 +349,7 @@ public:
 	explicit blocking_concurrent_queue(size_t capacity = 6 * BLOCK_SIZE)
 		: inner(capacity), sema(create<LightweightSemaphore>(), &blocking_concurrent_queue::template destroy<LightweightSemaphore>)
 	{
-		assert(reinterpret_cast<ConcurrentQueue*>((blocking_concurrent_queue*)1) == &((blocking_concurrent_queue*)1)->inner && "blocking_concurrent_queue must have ConcurrentQueue as its first member");
+		assert(reinterpret_cast<concurrent_queue*>((blocking_concurrent_queue*)1) == &((blocking_concurrent_queue*)1)->inner && "blocking_concurrent_queue must have concurrent_queue as its first member");
 		if (!sema) {
 			MOODYCAMEL_THROW(std::bad_alloc());
 		}
@@ -358,7 +358,7 @@ public:
 	blocking_concurrent_queue(size_t minCapacity, size_t maxExplicitProducers, size_t maxImplicitProducers)
 		: inner(minCapacity, maxExplicitProducers, maxImplicitProducers), sema(create<LightweightSemaphore>(), &blocking_concurrent_queue::template destroy<LightweightSemaphore>)
 	{
-		assert(reinterpret_cast<ConcurrentQueue*>((blocking_concurrent_queue*)1) == &((blocking_concurrent_queue*)1)->inner && "blocking_concurrent_queue must have ConcurrentQueue as its first member");
+		assert(reinterpret_cast<concurrent_queue*>((blocking_concurrent_queue*)1) == &((blocking_concurrent_queue*)1)->inner && "blocking_concurrent_queue must have concurrent_queue as its first member");
 		if (!sema) {
 			MOODYCAMEL_THROW(std::bad_alloc());
 		}
@@ -717,7 +717,7 @@ public:
 	// Thread-safe.
 	static bool is_lock_free()
 	{
-		return ConcurrentQueue::is_lock_free();
+		return concurrent_queue::is_lock_free();
 	}
 	
 
@@ -746,7 +746,7 @@ private:
 	}
 	
 private:
-	ConcurrentQueue inner;
+	concurrent_queue inner;
 	std::unique_ptr<LightweightSemaphore, void (*)(LightweightSemaphore*)> sema;
 };
 
